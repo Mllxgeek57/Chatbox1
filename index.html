@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chatbox MellySimmer</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .chatbox {
+      width: 100%;
+      height: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
+    }
+    .chatbox::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chatbox::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    .message {
+      display: flex;
+      align-items: flex-start;
+      animation: fadeIn 0.4s ease forwards;
+      opacity: 0;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
+      object-fit: cover;
+      filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
+    }
+    .bubble {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 14px 18px;
+      border-radius: 18px;
+      color: #fff;
+      max-width: 75%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: background 0.3s ease;
+      word-wrap: break-word;
+    }
+    .bubble:hover {
+      background: rgba(255, 110, 199, 0.25);
+      box-shadow: 0 6px 20px rgba(255, 110, 199, 0.5);
+    }
+    .meta {
+      font-size: 0.8em;
+      color: #ddd;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .username {
+      font-weight: 700;
+      color: #ff6ec7;
+      user-select: text;
+    }
+    .pronouns {
+      font-style: italic;
+      color: #7fd7ff;
+      user-select: text;
+    }
+    .text {
+      font-size: 1em;
+      user-select: text;
+      white-space: pre-wrap;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbox" id="chatbox"></div>
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    window.addEventListener('onEventReceived', event => {
+      if (!event.detail || event.detail.event !== 'message') return;
+
+      const data = event.detail.data;
+      const name = data.displayName || data.from || 'Anonyme';
+      const msg = data.message || '';
+      const avatar = data.avatar || 'https://i.pravatar.cc/40?u=' + encodeURIComponent(name);
+      const pronouns = data.pronouns || '';
+
+      const messageEl = document.createElement('div');
+      messageEl.className = 'message';
+      
+      messageEl.innerHTML = `
+        <img class="avatar" src="${avatar}" alt="avatar de ${name}" />
+        <div class="bubble">
+          <div class="meta">
+            <span class="username">${name}</span>
+            ${pronouns ? `<span class="pronouns">(${pronouns})</span>` : ''}
+          </div>
+          <div class="text">${msg}</div>
+        </div>
+      `;
+
+      chatbox.appendChild(messageEl);
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      // Optionnel : limite le nombre de messages affichés (ex: 50)
+      if (chatbox.children.length > 50) {
+        chatbox.removeChild(chatbox.firstChild);
+      }
+    });
+  </script>
+</body>
+</html>
+</html>
